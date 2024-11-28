@@ -12,6 +12,7 @@ function Patient() {
         justifyContent: "center",
         alignItems: "center",
         py: 4,
+        flexDirection: { xs: "column", md: "row" },
       }}
     >
       <img src={group4} alt="group img" />

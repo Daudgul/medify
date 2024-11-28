@@ -61,7 +61,7 @@ function Header(props) {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box>
+    <Box bgcolor={"#fff"}>
       <Typography
         variant="h6"
         component="div"
