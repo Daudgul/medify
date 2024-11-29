@@ -1,38 +1,73 @@
-import { Box, Button, MenuItem, TextField } from "@mui/material";
-import React from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  MenuItem,
+  TextField,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function SearchInput({ small = false }) {
-  //   console.log(small, "this is sma;;");
-  const currencies = [
-    {
-      value: "USD",
-      label: "$",
-    },
-    {
-      value: "EUR",
-      label: "€",
-    },
-    {
-      value: "BTC",
-      label: "฿",
-    },
-    {
-      value: "JPY",
-      label: "¥",
-    },
-  ];
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get("https://meddata-backend.onrender.com/states")
+      .then((response) => {
+        setStates(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching states:", error);
+      });
+  }, []);
+
+  const fetchCity = (city) => {
+    setLoading(true);
+    axios
+      .get(`https://meddata-backend.onrender.com/cities/${city}`)
+      .then((response) => {
+        setCities(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching states:", error);
+        setLoading(false);
+      });
+  };
+
+  // Handle change in selection
+  const handleChange = (event) => {
+    setSelectedState(event.target.value);
+    setSelectedCity("");
+    fetchCity(event.target.value);
+  };
+
+  const handleSearch = () => {
+    let city = false;
+    city = cities?.includes(selectedCity);
+    if (selectedState && city) {
+      navigate(`/find-doctors?state=${selectedState}&city=${selectedCity}`);
+    } else {
+      alert("please select the inputs");
+    }
+  };
+
   return (
     <Box
       sx={{
         display: "flex",
-        // justifyContent: "space-between",
         gap: 5,
         padding: 3,
         flexWrap: { xs: "wrap", md: "nowrap" },
-        // flexWrap: "",
       }}
     >
       {" "}
@@ -40,8 +75,8 @@ function SearchInput({ small = false }) {
         id="outlined-select-currency"
         select
         label="State"
-        // placeholder="City"
-        // fullWidth
+        value={selectedState}
+        onChange={handleChange}
         sx={{
           minWidth: "326px",
         }}
@@ -56,9 +91,9 @@ function SearchInput({ small = false }) {
         }}
       >
         <MenuItem disabled>State</MenuItem>
-        {currencies.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
+        {states?.map((option) => (
+          <MenuItem key={option} value={option}>
+            {option}
           </MenuItem>
         ))}
       </TextField>
@@ -67,13 +102,9 @@ function SearchInput({ small = false }) {
         select
         label="City"
         fullWidth
-        sx={
-          {
-            //   maxWidth: "522px",
-          }
-        }
-        // defaultValue="EUR"
-        // helperText="Please select your currency"
+        value={selectedCity || ""}
+        onChange={(e) => setSelectedCity(e.target.value)}
+        sx={{}}
         slotProps={{
           input: {
             startAdornment: (
@@ -85,11 +116,17 @@ function SearchInput({ small = false }) {
         }}
       >
         <MenuItem disabled>City</MenuItem>
-        {currencies.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
+        {loading ? (
+          <MenuItem disabled>
+            <CircularProgress size={24} />
           </MenuItem>
-        ))}
+        ) : (
+          cities?.map((city) => (
+            <MenuItem key={city} value={city}>
+              {city}
+            </MenuItem>
+          ))
+        )}
       </TextField>
       <Button
         variant="contained"
@@ -100,7 +137,7 @@ function SearchInput({ small = false }) {
           textTransform: "capitalize",
           minWidth: "231px",
         }}
-        // fullWidth
+        onClick={handleSearch}
         startIcon={<SearchIcon />}
       >
         Search

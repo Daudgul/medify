@@ -1,6 +1,6 @@
 import { Box, Container } from "@mui/material";
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 // import Box from "@mui/material/Box";
@@ -30,6 +30,17 @@ const navItems = [
 
 function Header(props) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNavigate = (val) => {
+    if (val === "Find Doctors") {
+      navigate("/find-doctors");
+    } else if (val === "My Bookings") {
+      navigate("/my-bookings");
+    } else {
+      navigate("/");
+    }
+  };
 
   // Determine the background color based on the current location
   const backgroundColor = location.pathname === "/" ? "transparent" : "#fff";
@@ -43,7 +54,12 @@ function Header(props) {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
-      <img style={{ width: "128px" }} src={logo} alt="Logo img" />
+      <img
+        onClick={handleNavigate}
+        style={{ width: "128px" }}
+        src={logo}
+        alt="Logo img"
+      />
       <Divider />
       <List>
         {navItems.map((item) => (
@@ -86,7 +102,6 @@ function Header(props) {
         <AppBar
           component="nav"
           sx={{
-            // top: { xs: 0, sm: 41 },
             border: "none",
             boxShadow: "none",
             bgcolor: backgroundColor,
@@ -103,13 +118,13 @@ function Header(props) {
             >
               <MenuIcon />
             </IconButton>
-            <Box
-              //   variant="h6"
-              //   component="div"
-              sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
-            >
-              {/* MUI */}
-              <img style={{ width: "128px" }} src={logo} alt="Logo img" />
+            <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}>
+              <img
+                onClick={handleNavigate}
+                style={{ width: "128px" }}
+                src={logo}
+                alt="Logo img"
+              />
             </Box>
             <Box sx={{ display: { xs: "none", lg: "flex" }, gap: 3 }}>
               {navItems.map((item) => (
@@ -122,16 +137,18 @@ function Header(props) {
                     lineHeight: "21px",
                     textTransform: "capitalize",
                   }}
+                  onClick={() => handleNavigate(item)}
                 >
                   {item}
                 </Button>
               ))}
 
               <Button
+                onClick={() => handleNavigate("My Bookings")}
                 variant="contained"
                 sx={{ color: "#fff", textTransform: "capitalize" }}
               >
-                My Booking
+                My Bookings
               </Button>
             </Box>
           </Toolbar>
@@ -143,7 +160,7 @@ function Header(props) {
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
+              keepMounted: true,
             }}
             sx={{
               display: { xs: "block", lg: "none" },
